@@ -4,24 +4,18 @@ This is a simple demo app that shows how you can use the OpenTok .NET SDK to cre
 generate Tokens with those Sessions, and then pass these values to a JavaScript client that can
 connect and conduct a group chat.
 
-**Note**: These instructions assume you will be using Visual Studio. Since the application runs as a 
-[self hosted OWIN-compatible console application](https://github.com/NancyFx/Nancy/wiki/Hosting-nancy-with-owin#katana---httplistener-selfhost),
-you have two options to run this sample:
-* Open Visual Studio using 'Run as administrator'.
-* Use your current user to run Visual Studio but reserve the url by running this command from a Administrator Command Prompt:
-```netsh http add urlacl url=http://+:8080/ user=DOMAIN\USERNAME```
-
+**Note**: These instructions assume you will be using Visual Studio.
 The sample projects are contained inside the `OpenTok.sln` solution at the top level.
 
 
 ## Running the App
 
 First, add your own API Key and API Secret to the Application Settings. For your convenience, the
-`App.config` file is set up for you to place your values into it.
+`appsettings.json` file is set up for you to place your values into it.
 
 ```
-    <add key="API_KEY" value="000000" />
-    <add key="API_SECRET" value="abcdef1234567890abcdef" />
+    "API_KEY": "000000" />
+    "API_SECRET": "abcdef1234567890abcdef"
 ```
 
 Next, make sure the HelloWorld project is set as the Solution's Startup project. This can be done
@@ -37,45 +31,6 @@ Choose Start (Ctrl+F5) to run the application.
 Visit <http://localhost:8080> in your browser. Open it again in a second window. Smile! You've just
 set up a group chat.
 
-## Walkthrough
-
-This demo application uses the [Nancy micro web framework](http://nancyfx.org/). It is similar to
-many other popular web frameworks. We are only covering the very basics of the framework, but you can
-learn more by following the link above.
-
-### Bootstrapper (Bootstrapper.cs)
-
-Nancy uses Dependency Injection in order to initialize important objects that will remain alive for
-the lifetime of the application, in an IoC (Inversion of Control) Container. In order to configure
-that container, the `DefaultNancyBootstrapper` class is subclassed and the `ConfigureApplicationContainer()`
-method is overridden.
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Nancy;
-
-namespace HelloWorld
-{
-    public class Bootstrapper : DefaultNancyBootstrapper
-    {
-        protected override void ConfigureApplicationContainer(Nancy.TinyIoc.TinyIoCContainer container)
-        {
-            base.ConfigureApplicationContainer(container);
-
-            container.Register<OpenTokService>().AsSingleton();
-        }
-    }
-}
-```
-
-Once the super class is given a chance to configure, a new object of type `OpenTokService` is registered
-into the container as a singleton. The IoC Container is then responsible for creating the (one and only
-one) `OpenTokService` instance and making it available to other parts of the application.
-
 ### OpenTok Service (OpenTokService.cs)
 
 This object provides its very simple functionality as a service to the rest of the application. Its
@@ -88,14 +43,15 @@ public class OpenTokService
     public Session Session { get; protected set; }
     public OpenTok OpenTok { get; protected set; }
 
-    public OpenTokService()
+    public OpenTokService(IConfiguration configuration)
     {
         int apiKey = 0;
         string apiSecret = null;
         try
         {
-            string apiKeyString = ConfigurationManager.AppSettings["API_KEY"];
-            apiSecret = ConfigurationManager.AppSettings["API_SECRET"];
+            string apiKeyString = configuration["API_KEY"];
+            apiSecret = configuration["API_SECRET"];
+            apiKey = Convert.ToInt32(apiKeyString);
             apiKey = Convert.ToInt32(apiKeyString);
         }
 
@@ -141,7 +97,7 @@ Session object in the other public property. Alternatively, for applications tha
 the `Id` property of a `Session` can be stored in a database and used for all of the same operations that
 can be done with the instance (using slightly different API).
 
-### Main Module (MainModule.cs)
+### Main Module (HomeController.cs)
 
 In a Nancy application, any subclasses of `NancyModule` are initialized by the framework and given the
 opportunity to respond to requests using route matching. This class's dependencies are expressed as

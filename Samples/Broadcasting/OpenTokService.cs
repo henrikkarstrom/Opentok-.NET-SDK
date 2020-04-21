@@ -3,6 +3,7 @@ using System.Net;
 
 using System.Configuration;
 using OpenTokSDK;
+using Microsoft.Extensions.Configuration;
 
 namespace Broadcasting
 {
@@ -14,20 +15,20 @@ namespace Broadcasting
         public string broadcastId = "";
         public string focusStreamId = "";
 
-        public OpenTokService()
+        public OpenTokService(IConfiguration configuration)
         {
             int apiKey = 0;
             string apiSecret = null;
             try
             {
-                string apiKeyString = ConfigurationManager.AppSettings["API_KEY"];
-                apiSecret = ConfigurationManager.AppSettings["API_SECRET"];
+                string apiKeyString = configuration["API_KEY"];
+                apiSecret = configuration["API_SECRET"];
                 apiKey = Convert.ToInt32(apiKeyString);
             }
 
             catch (Exception ex)
             {
-                if (!(ex is ConfigurationErrorsException || ex is FormatException || ex is OverflowException))
+                if (!(ex is FormatException || ex is OverflowException))
                 {
                     throw ex;
                 }

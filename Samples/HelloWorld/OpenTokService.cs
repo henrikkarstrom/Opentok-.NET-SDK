@@ -1,6 +1,6 @@
 ﻿using OpenTokSDK;
 using System;
-using System.Configuration;
+using Microsoft.Extensions.Configuration;
 using System.Net;
 
 namespace HelloWorld
@@ -10,20 +10,20 @@ namespace HelloWorld
         public Session Session { get; protected set; }
         public OpenTok OpenTok { get; protected set; }
 
-        public OpenTokService()
+        public OpenTokService(IConfiguration configuration)
         {
             int apiKey = 0;
             string apiSecret = null;
             try
             {
-                string apiKeyString = ConfigurationManager.AppSettings["API_KEY"];
-                apiSecret = ConfigurationManager.AppSettings["API_SECRET"];
+                string apiKeyString = configuration["API_KEY"];
+                apiSecret = configuration["API_SECRET"];
                 apiKey = Convert.ToInt32(apiKeyString);
             }
 
             catch (Exception ex)
             {
-                if (!(ex is ConfigurationErrorsException || ex is FormatException || ex is OverflowException))
+                if (!(ex is FormatException || ex is OverflowException))
                 {
                     throw ex;
                 }
@@ -35,7 +35,7 @@ namespace HelloWorld
                 {
                     Console.WriteLine(
                         "The OpenTok API Key and API Secret were not set in the application configuration. " +
-                        "Set the values in App.config and try again. (apiKey = {0}, apiSecret = {1})", apiKey, apiSecret);
+                        "Set the values in appsettings.json and try again. (apiKey = {0}, apiSecret = {1})", apiKey, apiSecret);
                     Console.ReadLine();
                     Environment.Exit(-1);
                 }

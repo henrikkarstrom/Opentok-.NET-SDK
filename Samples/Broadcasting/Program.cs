@@ -1,21 +1,20 @@
-﻿using Microsoft.Owin.Hosting;
-using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Broadcasting
 {
-
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            var url = "http://+:8080";
-
-            using (WebApp.Start<Startup>(url))
-            {
-                Console.WriteLine("Running on {0}", url);
-                Console.WriteLine("Press enter to exit.");
-                Console.ReadLine();
-            }
+            CreateHostBuilder(args).Build().Run();
         }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
     }
 }

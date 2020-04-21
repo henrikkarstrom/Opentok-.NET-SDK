@@ -1,4 +1,6 @@
-﻿<!doctype html>
+﻿@model dynamic
+
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -9,7 +11,7 @@
         var sessionId = '@Model.SessionId';
         var token = '@Model.Token';
     </script>
-    <script src="/Content/js/helloworld.js"></script>
+    <script src="/js/helloworld.js"></script>
 </head>
 <body>
     <h2>Hello, World!</h2>
